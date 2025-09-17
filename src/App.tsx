@@ -1,7 +1,11 @@
 import { useState, useEffect } from "react";
 
 function App() {
-  const [seconds, setSeconds] = useState<number>(0); // 経過秒数
+  const [seconds, setSeconds] = useState<number>(() => {
+    // 初期値を localStorage から読み込む
+    const saved = localStorage.getItem("seconds");
+    return saved ? Number(saved) : 0;
+  }); // 経過秒数
   const [isRunning, setIsRunning] = useState<boolean>(false); // 動作中かどうか
 
   useEffect(() => {
@@ -21,11 +25,17 @@ function App() {
   }, [isRunning]); 
   // isRunning が変わるたびに実行される
 
+  // seconds が変わるたびに localStorage に保存
+  useEffect(() => {
+    localStorage.setItem("seconds", String(seconds));
+  }, [seconds]);
+
   const handleStart = () => setIsRunning(true);
   const handleStop = () => setIsRunning(false);
   const handleReset = () => {
     setIsRunning(false);
     setSeconds(0);
+    localStorage.removeItem("seconds")
   };
 
   // フォーマット関数: 秒数を "MM:SS" に変換
